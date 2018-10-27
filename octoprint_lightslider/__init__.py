@@ -6,7 +6,7 @@ import re
 import octoprint.plugin
 from octoprint.server import user_permission
 
-class LighSliderPlugin(octoprint.plugin.StartupPlugin,
+class LightSliderPlugin(octoprint.plugin.StartupPlugin,
 					octoprint.plugin.TemplatePlugin,
 					octoprint.plugin.SettingsPlugin,
 					octoprint.plugin.AssetPlugin,
@@ -26,8 +26,10 @@ class LighSliderPlugin(octoprint.plugin.StartupPlugin,
 
 
 	def on_shutdown(self):
+		self._logger.info("entering on_shutdown...")
 		self.pwm_instance.stop()
 		GPIO.cleanup()
+		self._logger.info("exiting on_shutdown.")
 
 	def get_settings_defaults(self):
 		return dict(
@@ -102,14 +104,14 @@ class LighSliderPlugin(octoprint.plugin.StartupPlugin,
 		return dict(dim=["percentage"])
 
 	def on_api_command(self, command, data):
-		self._logger.info("received an api_command: " + str(command) +" , "+ str(data.percentage))
+		self._logger.info("received an api_command: " + str(command) +" , "+ str(data["percentage"]))
 		if not user_permission.can():
 			from flask import make_response
 			return make_response("Insufficient rights", 403)
 
 		if command == 'dim':
-			self.pwm_instance.ChangeDutyCycle(int(data.percentage))
-			self.current_pwm_value= int(data.percentage)
+			self.pwm_instance.ChangeDutyCycle(float(data["percentage"]))
+			self.current_pwm_value= data["percentage"]
 			self._logger.info("changed current_pwm_value: " + str(self.current_pwm_value))
 
 __plugin_name__ = "Illumination Control"
@@ -118,4 +120,4 @@ __plugin_description__ = "Dim your printbed light with the help of a mosfet and 
 
 def __plugin_load__():
 	global __plugin_implementation__
-	__plugin_implementation__ = LighSliderPlugin()
+	__plugin_implementation__ = LightSliderPlugin()

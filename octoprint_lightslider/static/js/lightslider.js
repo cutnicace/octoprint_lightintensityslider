@@ -64,7 +64,7 @@ $(function () {
 		//send apirequest
 		self.control.sendPwmRequest = function(data){
 			$.ajax({
-			url: API_BASEURL + "plugin/lightslider",
+			url: API_BASEURL + "plugin/octoprint_lightslider",
 			type: "POST",
 			dataType: "json",
 			data: JSON.stringify({
@@ -118,10 +118,10 @@ $(function () {
 
 		self.updateSettings = function () {
 			try {
-				self.settings.minLightIntensity(parseInt(self.settings.settings.plugins.lightslider.minSpeed()));
-				self.settings.maxLightIntensity(parseInt(self.settings.settings.plugins.lightslider.maxSpeed()));
-				self.settings.notifyDelay(parseInt(self.settings.settings.plugins.lightslider.notifyDelay()));
-				self.settings.rpi_output(parseInt(self.settings.settings.plugins.lightslider.rpi_output()));
+				self.settings.minLightIntensity(parseInt(self.settings.settings.plugins.octoprint_lightslider.minSpeed()));
+				self.settings.maxLightIntensity(parseInt(self.settings.settings.plugins.octoprint_lightslider.maxSpeed()));
+				self.settings.notifyDelay(parseInt(self.settings.settings.plugins.octoprint_lightslider.notifyDelay()));
+				self.settings.rpi_output(parseInt(self.settings.settings.plugins.octoprint_lightslider.rpi_output()));
 			}
 			catch (error) {
 				console.log(error);
@@ -129,7 +129,7 @@ $(function () {
 		}
 
 		self.onBeforeBinding = function () {
-			self.settings.defaultLightIntensity(parseInt(self.settings.settings.plugins.lightslider.defaultLightIntensity()));
+			self.settings.defaultLightIntensity(parseInt(self.settings.settings.plugins.octoprint_lightslider.defaultLightIntensity()));
 			self.updateSettings();
 			//if the default brightness is above or below max/min then set to either max or min
 			if (self.settings.defaultLightIntensity() < self.settings.minLightIntensity()) {
