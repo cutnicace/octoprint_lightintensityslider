@@ -5,7 +5,7 @@
             <label class="control-label">{{ _('Default Value') }}</label>
             <div class="controls">
                 <div class="input-append">
-                    <input type="number" min="0" max="100" class="input-mini" data-bind="attr: { title: defaultTitle }, value: settings.plugins.lightintensityslider.defaultLightIntensity">
+                    <input type="number" min="0" max="100" class="input-mini" data-bind="attr: { title: defaultTitle }, value: settings.plugins.lightslider.defaultLightIntensity">
                     <span class="add-on">%</span>
                 </div>
                 <span class="help-block">{{ _('The default value the slider will be set to when opening OctoPrint\'s UI') }}</span>
@@ -15,7 +15,7 @@
             <label class="control-label">{{ _('Raspberry PI GPIO PWM PIN') }}</label>
             <div class="controls">
                 <div class="input-append">
-                    <input type="number" min="2" max="27" class="input-mini" data-bind="attr: { title: rpiTitle }, value: settings.plugins.lightintensityslider.rpi_output">
+                    <input type="number" min="2" max="27" class="input-mini" data-bind="attr: { title: rpiTitle }, value: settings.plugins.lightslider.rpi_output">
                     <span class="add-on">%</span>
                 </div>
                 <span class="help-block">{{ _('General Purpose Input Output Pin on the rPi you want to use to control the mosfet with.') }}</span>
@@ -27,7 +27,7 @@
             <label class="control-label">{{ _('Minimum Brightness') }}</label>
             <div class="controls">
                 <div class="input-append">
-                    <input type="number" min="0" max="100" class="input-mini" data-bind="attr: { title: minTitle }, value: settings.plugins.lightintensityslider.minLightIntensity">
+                    <input type="number" min="0" max="100" class="input-mini" data-bind="attr: { title: minTitle }, value: settings.plugins.lightslider.minLightIntensity">
                     <span class="add-on">%</span>
                 </div>
                 <span class="help-block">{{ _('Any value sent which is below this value will be increased to meet this light intensity. Useful if you do not want to go below a certain brightness value.') }}</span>
@@ -37,7 +37,7 @@
             <label class="control-label">{{ _('Maximum Brightness') }}</label>
             <div class="controls">
                 <div class="input-append">
-                    <input type="number" min="0" max="100" class="input-mini" data-bind="attr: { title: maxTitle }, value: settings.plugins.lightintensityslider.maxLightIntensity">
+                    <input type="number" min="0" max="100" class="input-mini" data-bind="attr: { title: maxTitle }, value: settings.plugins.lightslider.maxLightIntensity">
                     <span class="add-on">%</span>
                 </div>
                 <span class="help-block">{{ _('Any value sent which is above this value will be decreased to meet this speed. Useful if your light source is too strong on full intensity.') }}</span>
@@ -48,7 +48,7 @@
             <label class="control-label">{{ _('Notification Autohide Delay') }}</label>
             <div class="controls">
                 <div class="input-append">
-                    <input type="number" min="0" class="input-mini" data-bind="attr: {title: noticeTitle }, value: settings.plugins.lightintensityslider.notifyDelay">
+                    <input type="number" min="0" class="input-mini" data-bind="attr: {title: noticeTitle }, value: settings.plugins.lightslider.notifyDelay">
                     <span class="add-on">ms</span>
                 </div>
                 <span class="help-block">{{ _('Delay (in milliseconds) before notifications are auto-hidden. Set to 0 to disable notifications.') }}</span>

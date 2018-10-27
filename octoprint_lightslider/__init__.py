@@ -102,14 +102,14 @@ class LighSliderPlugin(octoprint.plugin.StartupPlugin,
 		return dict(dim=["percentage"])
 
 	def on_api_command(self, command, data):
-		self._logger.info("received an api_command: " + str(command) +" , "+ str(data))
+		self._logger.info("received an api_command: " + str(command) +" , "+ str(data.percentage))
 		if not user_permission.can():
 			from flask import make_response
 			return make_response("Insufficient rights", 403)
 
 		if command == 'dim':
-			self.pwm_instance.ChangeDutyCycle(data)
-			self.current_pwm_value=data
+			self.pwm_instance.ChangeDutyCycle(int(data.percentage))
+			self.current_pwm_value= int(data.percentage)
 			self._logger.info("changed current_pwm_value: " + str(self.current_pwm_value))
 
 __plugin_name__ = "Illumination Control"
@@ -118,4 +118,4 @@ __plugin_description__ = "Dim your printbed light with the help of a mosfet and 
 
 def __plugin_load__():
 	global __plugin_implementation__
-	__plugin_implementation__ = __plugin_implementation__ = LighSliderPlugin()
+	__plugin_implementation__ = LighSliderPlugin()

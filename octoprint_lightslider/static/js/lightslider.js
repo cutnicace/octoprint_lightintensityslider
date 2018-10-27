@@ -62,17 +62,31 @@ $(function () {
 		});
 
 		//send apirequest to dim the led strip
-		self.sendDimCommand = function(value) {
+		self.control.sendDimCommand = function() {
+			self.control.checkSliderValue();
 			$.ajax({
-			url: API_BASEURL + "plugin/lightintensityslider",
+			url: API_BASEURL + "plugin/lightslider",
 			type: "POST",
 			dataType: "json",
 			data: JSON.stringify({
 				command: "dim",
-				percentage: value
+				percentage: self.control.lightIntensity()
 			}),
 			contentType: "application/json; charset=UTF-8"
-			});		
+			});
+		}
+
+		self.control.lightsOut = function() {
+			$.ajax({
+			url: API_BASEURL + "plugin/lightslider",
+			type: "POST",
+			dataType: "json",
+			data: JSON.stringify({
+				command: "dim",
+				percentage: 0
+			}),
+			contentType: "application/json; charset=UTF-8"
+			});
 		}
 
 		//ph34r
@@ -86,18 +100,18 @@ $(function () {
 				//add new light controls
 				$("#control-jog-general").find("button").eq(2).after("\
 					<input type=\"number\" style=\"width: 95px\" data-bind=\"slider: {min: 00, max: 100, step: 1, value: lightIntensity, tooltip: 'hide'}\">\
-					<button class=\"btn btn-block control-box\" id=\"dim-lights\" data-bind=\"enable: isOperational() && loginState.isUser(), click: function() { $root.sendDimCommand(self.control.lightIntensity()) }\">" + gettext("Light Intensity") + ":<span data-bind=\"text: lightIntensity() + '%'\"></span></button>\
-					<button class=\"btn btn-block control-box\" id=\"lights-out\" data-bind=\"enable: isOperational() && loginState.isUser(), click: function() { $root.sendDimCommand(0) }\">" + gettext("Lights out") + "</button>\
+					<button class=\"btn btn-block control-box\" id=\"dim-lights\" data-bind=\"enable: isOperational() && loginState.isUser(), click: function() { $root.sendDimCommand() }\">" + gettext("Light Intensity") + ":<span data-bind=\"text: lightIntensity() + '%'\"></span></button>\
+					<button class=\"btn btn-block control-box\" id=\"lights-out\" data-bind=\"enable: isOperational() && loginState.isUser(), click: function() { $root.lightsOut() }\">" + gettext("Lights out") + "</button>\
 				");
 			} else {
 				//replace touch UI's fan on button with one that sends whatever speed is set in this plugin
 				$("#control-jog-general").find("button").eq(2).after("\
-					<button class=\"btn btn-block control-box\" id=\"dim-lights\" data-bind=\"enable: isOperational() && loginState.isUser(), click: function() { $root.sendDimCommand(self.control.lightIntensity()) }\">" + gettext("Set Intensity") + "</button>\
+					<button class=\"btn btn-block control-box\" id=\"dim-lights\" data-bind=\"enable: isOperational() && loginState.isUser(), click: function() { $root.sendDimCommand() }\">" + gettext("Set Intensity") + "</button>\
 				");
 				//also add spin box + button below in its own section, button is redundant but convenient
 				$("#control-jog-feedrate").append("\
 					<input type=\"number\" style=\"width: 150px\" data-bind=\"slider: {min: 00, max: 100, step: 1, value: lightIntensity, tooltip: 'hide'}\">\
-					<button class=\"btn btn-block\" style=\"width: 169px\" data-bind=\"enable: isOperational() && loginState.isUser(), click: function() { $root.sendDimCommand(self.control.lightIntensity()) }\">" + gettext("Light Intensity:") + "<span data-bind=\"text: lightIntensity() + '%'\"></span></button>\
+					<button class=\"btn btn-block\" style=\"width: 169px\" data-bind=\"enable: isOperational() && loginState.isUser(), click: function() { $root.sendDimCommand() }\">" + gettext("Light Intensity:") + "<span data-bind=\"text: lightIntensity() + '%'\"></span></button>\
 				");
 			}
 		}
@@ -107,10 +121,10 @@ $(function () {
 
 		self.updateSettings = function () {
 			try {
-				self.settings.minLightIntensity(parseInt(self.settings.settings.plugins.lightintensityslider.minSpeed()));
-				self.settings.maxLightIntensity(parseInt(self.settings.settings.plugins.lightintensityslider.maxSpeed()));
-				self.settings.notifyDelay(parseInt(self.settings.settings.plugins.lightintensityslider.notifyDelay()));
-				self.settings.rpi_output(parseInt(self.settings.settings.plugins.lightintensityslider.rpi_output()));
+				self.settings.minLightIntensity(parseInt(self.settings.settings.plugins.lightslider.minSpeed()));
+				self.settings.maxLightIntensity(parseInt(self.settings.settings.plugins.lightslider.maxSpeed()));
+				self.settings.notifyDelay(parseInt(self.settings.settings.plugins.lightslider.notifyDelay()));
+				self.settings.rpi_output(parseInt(self.settings.settings.plugins.lightslider.rpi_output()));
 			}
 			catch (error) {
 				console.log(error);
@@ -118,7 +132,7 @@ $(function () {
 		}
 
 		self.onBeforeBinding = function () {
-			self.settings.defaultLightIntensity(parseInt(self.settings.settings.plugins.lightintensityslider.defaultLightIntensity()));
+			self.settings.defaultLightIntensity(parseInt(self.settings.settings.plugins.lightslider.defaultLightIntensity()));
 			self.updateSettings();
 			//if the default brightness is above or below max/min then set to either max or min
 			if (self.settings.defaultLightIntensity() < self.settings.minLightIntensity()) {
@@ -129,7 +143,7 @@ $(function () {
 			}
 			else {
 				self.control.lightIntensity(self.settings.defaultLightIntensity());
-			}			
+			}
 		}
 
 		//update settings in case user changes them, otherwise a refresh of the UI is required
