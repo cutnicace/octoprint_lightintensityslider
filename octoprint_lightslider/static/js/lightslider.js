@@ -61,32 +61,29 @@ $(function () {
 			}
 		});
 
-		//send apirequest to dim the led strip
-		self.control.sendDimCommand = function() {
-			self.control.checkSliderValue();
+		//send apirequest
+		self.control.sendPwmRequest = function(data){
 			$.ajax({
 			url: API_BASEURL + "plugin/lightslider",
 			type: "POST",
 			dataType: "json",
 			data: JSON.stringify({
 				command: "dim",
-				percentage: self.control.lightIntensity()
+				percentage: data
 			}),
 			contentType: "application/json; charset=UTF-8"
 			});
 		}
 
+		//send command to dim the led strip
+		self.control.lightsDim = function() {
+			self.control.checkSliderValue();
+			self.control.sendPwmRequest(self.control.lightIntensity())
+		}
+
+		//send command to turn off the led strip
 		self.control.lightsOut = function() {
-			$.ajax({
-			url: API_BASEURL + "plugin/lightslider",
-			type: "POST",
-			dataType: "json",
-			data: JSON.stringify({
-				command: "dim",
-				percentage: 0
-			}),
-			contentType: "application/json; charset=UTF-8"
-			});
+			self.control.sendPwmRequest(0)
 		}
 
 		//ph34r
@@ -100,18 +97,18 @@ $(function () {
 				//add new light controls
 				$("#control-jog-general").find("button").eq(2).after("\
 					<input type=\"number\" style=\"width: 95px\" data-bind=\"slider: {min: 00, max: 100, step: 1, value: lightIntensity, tooltip: 'hide'}\">\
-					<button class=\"btn btn-block control-box\" id=\"dim-lights\" data-bind=\"enable: isOperational() && loginState.isUser(), click: function() { $root.sendDimCommand() }\">" + gettext("Light Intensity") + ":<span data-bind=\"text: lightIntensity() + '%'\"></span></button>\
+					<button class=\"btn btn-block control-box\" id=\"dim-lights\" data-bind=\"enable: isOperational() && loginState.isUser(), click: function() { $root.lightsDim() }\">" + gettext("Light Intensity") + ":<span data-bind=\"text: lightIntensity() + '%'\"></span></button>\
 					<button class=\"btn btn-block control-box\" id=\"lights-out\" data-bind=\"enable: isOperational() && loginState.isUser(), click: function() { $root.lightsOut() }\">" + gettext("Lights out") + "</button>\
 				");
 			} else {
 				//replace touch UI's fan on button with one that sends whatever speed is set in this plugin
 				$("#control-jog-general").find("button").eq(2).after("\
-					<button class=\"btn btn-block control-box\" id=\"dim-lights\" data-bind=\"enable: isOperational() && loginState.isUser(), click: function() { $root.sendDimCommand() }\">" + gettext("Set Intensity") + "</button>\
+					<button class=\"btn btn-block control-box\" id=\"dim-lights\" data-bind=\"enable: isOperational() && loginState.isUser(), click: function() { $root.lightsDim() }\">" + gettext("Set Intensity") + "</button>\
 				");
 				//also add spin box + button below in its own section, button is redundant but convenient
 				$("#control-jog-feedrate").append("\
 					<input type=\"number\" style=\"width: 150px\" data-bind=\"slider: {min: 00, max: 100, step: 1, value: lightIntensity, tooltip: 'hide'}\">\
-					<button class=\"btn btn-block\" style=\"width: 169px\" data-bind=\"enable: isOperational() && loginState.isUser(), click: function() { $root.sendDimCommand() }\">" + gettext("Light Intensity:") + "<span data-bind=\"text: lightIntensity() + '%'\"></span></button>\
+					<button class=\"btn btn-block\" style=\"width: 169px\" data-bind=\"enable: isOperational() && loginState.isUser(), click: function() { $root.lightsDim() }\">" + gettext("Light Intensity:") + "<span data-bind=\"text: lightIntensity() + '%'\"></span></button>\
 				");
 			}
 		}
