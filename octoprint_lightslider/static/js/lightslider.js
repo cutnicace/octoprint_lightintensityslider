@@ -13,11 +13,11 @@ $(function () {
 		self.loginState = parameters[2];
 
 		self.control.lightIntensity = new ko.observable(100);			//this,
-		self.settings.defaultLightIntensity = new ko.observable(80);	//this,
-		self.settings.minLightIntensity = new ko.observable(0); 		//this,
-		self.settings.maxLightIntensity = new ko.observable(100);		//and this are percents 0 - 100%
+		self.settings.defaultIntensity = new ko.observable(80);	//this,
+		self.settings.minIntensity = new ko.observable(0); 		//this,
+		self.settings.maxIntensity = new ko.observable(100);		//and this are percents 0 - 100%
 		self.settings.notifyDelay = new ko.observable(4000); 	//time in milliseconds
-		self.settings.rpi_output = new ko.observable(21);	//decimal number of GPIO Pin
+		self.settings.rpi_output = new ko.observable(25);	//decimal number of GPIO Pin
 
 		self.settings.commonTitle = ko.observable(gettext("\n\nThis allows for seamless adjusting of the print bed lighting.\n\nUtilizing PWM function thru GPIO pins and a mosfet."));
 		self.settings.defaultTitle = ko.observable(gettext("This is the value the slider will default to when the UI is loaded / refreshed."));
@@ -37,9 +37,9 @@ $(function () {
 		};
 
 		self.control.checkSliderValue = ko.pureComputed(function () {
-			if (self.control.lightIntensity() < self.settings.minLightIntensity() && self.control.lightIntensity() != "0") {
-				console.log("Bed Illumination Control Plugin: " + self.control.lightIntensity() + "% is less than the minimum intensity (" + self.settings.minLightIntensity() + "%), increasing.");
-				self.control.lightIntensity(self.settings.minLightIntensity());
+			if (self.control.lightIntensity() < self.settings.minIntensity() && self.control.lightIntensity() != "0") {
+				console.log("Bed Illumination Control Plugin: " + self.control.lightIntensity() + "% is less than the minimum intensity (" + self.settings.minIntensity() + "%), increasing.");
+				self.control.lightIntensity(self.settings.minIntensity());
 				var options = {
 					text: gettext('Light intensity increased to meet minimum intensity requirement.'),
 					addclass:  'light_intensity_notice_low',
@@ -48,9 +48,9 @@ $(function () {
 					self.showNotify(self, options);
 				}
 			}
-			else if (self.control.lightIntensity() > self.settings.maxLightIntensity()) {
-				console.log("Bed Illumination Control Plugin: " + self.control.lightIntensity() + "% is more than the maximum intensity (" + self.settings.maxLightIntensity() + "%), decreasing.");
-				self.control.lightIntensity(self.settings.maxLightIntensity());
+			else if (self.control.lightIntensity() > self.settings.maxIntensity()) {
+				console.log("Bed Illumination Control Plugin: " + self.control.lightIntensity() + "% is more than the maximum intensity (" + self.settings.maxIntensity() + "%), decreasing.");
+				self.control.lightIntensity(self.settings.maxIntensity());
 				var options = {
 					text: gettext('Light intensity decreased to meet maximum intensity requirement.'),
 					addclass:  'light_intensity_notice_high',
@@ -118,8 +118,8 @@ $(function () {
 
 		self.updateSettings = function () {
 			try {
-				self.settings.minLightIntensity(parseInt(self.settings.settings.plugins.octoprint_lightslider.minSpeed()));
-				self.settings.maxLightIntensity(parseInt(self.settings.settings.plugins.octoprint_lightslider.maxSpeed()));
+				self.settings.minIntensity(parseInt(self.settings.settings.plugins.octoprint_lightslider.minIntensity()));
+				self.settings.maxIntensity(parseInt(self.settings.settings.plugins.octoprint_lightslider.maxIntensity()));
 				self.settings.notifyDelay(parseInt(self.settings.settings.plugins.octoprint_lightslider.notifyDelay()));
 				self.settings.rpi_output(parseInt(self.settings.settings.plugins.octoprint_lightslider.rpi_output()));
 			}
@@ -129,17 +129,17 @@ $(function () {
 		}
 
 		self.onBeforeBinding = function () {
-			self.settings.defaultLightIntensity(parseInt(self.settings.settings.plugins.octoprint_lightslider.defaultLightIntensity()));
+			self.settings.defaultIntensity(parseInt(self.settings.settings.plugins.octoprint_lightslider.defaultIntensity()));
 			self.updateSettings();
 			//if the default brightness is above or below max/min then set to either max or min
-			if (self.settings.defaultLightIntensity() < self.settings.minLightIntensity()) {
-				self.control.lightIntensity(self.settings.minLightIntensity());
+			if (self.settings.defaultIntensity() < self.settings.minIntensity()) {
+				self.control.lightIntensity(self.settings.minIntensity());
 			}
-			else if (self.settings.defaultLightIntensity() > self.settings.maxLightIntensity()) {
-				self.control.lightIntensity(self.settings.maxLightIntensity());
+			else if (self.settings.defaultIntensity() > self.settings.maxIntensity()) {
+				self.control.lightIntensity(self.settings.maxIntensity());
 			}
 			else {
-				self.control.lightIntensity(self.settings.defaultLightIntensity());
+				self.control.lightIntensity(self.settings.defaultIntensity());
 			}
 		}
 

@@ -5,7 +5,7 @@
             <label class="control-label">{{ _('Default Value') }}</label>
             <div class="controls">
                 <div class="input-append">
-                    <input type="number" min="0" max="100" class="input-mini" data-bind="attr: { title: defaultTitle }, value: settings.plugins.octoprint_lightslider.defaultLightIntensity">
+                    <input type="number" min="0" max="100" class="input-mini" data-bind="attr: { title: defaultTitle }, value: settings.plugins.octoprint_lightslider.defaultIntensity">
                     <span class="add-on">%</span>
                 </div>
                 <span class="help-block">{{ _('The default value the slider will be set to when opening OctoPrint\'s UI') }}</span>
@@ -27,7 +27,7 @@
             <label class="control-label">{{ _('Minimum Brightness') }}</label>
             <div class="controls">
                 <div class="input-append">
-                    <input type="number" min="0" max="100" class="input-mini" data-bind="attr: { title: minTitle }, value: settings.plugins.octoprint_lightslider.minLightIntensity">
+                    <input type="number" min="0" max="100" class="input-mini" data-bind="attr: { title: minTitle }, value: settings.plugins.octoprint_lightslider.minIntensity">
                     <span class="add-on">%</span>
                 </div>
                 <span class="help-block">{{ _('Any value sent which is below this value will be increased to meet this light intensity. Useful if you do not want to go below a certain brightness value.') }}</span>
@@ -37,7 +37,7 @@
             <label class="control-label">{{ _('Maximum Brightness') }}</label>
             <div class="controls">
                 <div class="input-append">
-                    <input type="number" min="0" max="100" class="input-mini" data-bind="attr: { title: maxTitle }, value: settings.plugins.octoprint_lightslider.maxLightIntensity">
+                    <input type="number" min="0" max="100" class="input-mini" data-bind="attr: { title: maxTitle }, value: settings.plugins.octoprint_lightslider.maxIntensity">
                     <span class="add-on">%</span>
                 </div>
                 <span class="help-block">{{ _('Any value sent which is above this value will be decreased to meet this speed. Useful if your light source is too strong on full intensity.') }}</span>

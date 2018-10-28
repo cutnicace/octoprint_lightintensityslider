@@ -7,34 +7,25 @@ import octoprint.plugin
 from octoprint.server import user_permission
 
 class LightSliderPlugin(octoprint.plugin.StartupPlugin,
-					octoprint.plugin.TemplatePlugin,
-					octoprint.plugin.SettingsPlugin,
-					octoprint.plugin.AssetPlugin,
-					octoprint.plugin.SimpleApiPlugin,
-					octoprint.plugin.ShutdownPlugin):
+			octoprint.plugin.TemplatePlugin,
+			octoprint.plugin.SettingsPlugin,
+			octoprint.plugin.AssetPlugin,
+			octoprint.plugin.SimpleApiPlugin,
+			octoprint.plugin.ShutdownPlugin):
 
 	def on_after_startup(self):
-		self._logger.info("entering on_after_startup...")
-		self.get_settings_updates() #loads saved values from the config.yaml into the variables
-		GPIO.setmode(GPIO.BCM)
-		GPIO.setup(self.rpi_output, GPIO.OUT)
-		self.pwm_instance = GPIO.PWM(self.rpi_output, 800)
-		self.pwm_instance.start(self.defaultLightIntensity)
-		self.current_pwm_value=self.defaultLightIntensity
-		self._logger.info("value of current_pwm_value: " + str(self.current_pwm_value))
-		self._logger.info("exiting on_after_startup.")
-
+		self.get_settings_updates() #load saved values from the config.yaml into the variables
+		self.setup_pwm(self.rpi_output)
 
 	def on_shutdown(self):
-		self._logger.info("entering on_shutdown...")
-		self.pwm_instance.stop()
-		GPIO.cleanup()
-		self._logger.info("exiting on_shutdown.")
+		#clean up after yourself
+		self.teardown_pwm()
+
 
 	def get_settings_defaults(self):
 		return dict(
-			defaultLightIntensity=80,
-			rpi_output=21,
+			defaultIntensity=75,
+			rpi_output=25,
 			minIntensity=0,
 			maxIntensity=100,
 			notifyDelay=4000,
@@ -42,9 +33,9 @@ class LightSliderPlugin(octoprint.plugin.StartupPlugin,
 
 	def on_settings_save(self, data):
 		s = self._settings
-		if "defaultLightIntensity" in data.keys():
-			s.setInt(["defaultLightIntensity"], data["defaultLightIntensity"])
-		if "notifyDelay" in data.keys():
+		if "defaultIntensity" in data.keys():
+			s.setInt(["defaultIntensity"], data["defaultIntensity"])
+		if "rpi_output" in data.keys():
 			s.setInt(["rpi_output"], data["rpi_output"])
 		if "minIntensity" in data.keys():
 			s.setInt(["minIntensity"], data["minIntensity"])
@@ -55,6 +46,12 @@ class LightSliderPlugin(octoprint.plugin.StartupPlugin,
 		self.get_settings_updates()
 		#clean up settings if everything's default
 		self.on_settings_cleanup()
+		#setup new pwm output pin if it got altered
+		new_pin = s.getInt(["rpi_output"])
+		if new_pin != 0:
+			self._logger.debug("new rpi_out pin set: " + str(new_pin))
+			self.teardown_pwm()
+			self.setup_pwm(new_pin)
 		s.save()
 
 	#function stolen...err borrowed :D from types.py @ 1663
@@ -94,7 +91,7 @@ class LightSliderPlugin(octoprint.plugin.StartupPlugin,
 		]
 
 	def get_settings_updates(self):
-		self.defaultLightIntensity = self._settings.getInt(["defaultLightIntensity"])
+		self.defaultIntensity = self._settings.getInt(["defaultIntensity"])
 		self.rpi_output = self._settings.getInt(["rpi_output"])
 		self.minIntensity = self._settings.getInt(["minIntensity"])
 		self.maxIntensity = self._settings.getInt(["maxIntensity"])
@@ -104,7 +101,7 @@ class LightSliderPlugin(octoprint.plugin.StartupPlugin,
 		return dict(dim=["percentage"])
 
 	def on_api_command(self, command, data):
-		self._logger.info("received an api_command: " + str(command) +" , "+ str(data["percentage"]))
+		self._logger.debug("received an api_command: " + str(command) +" , "+ str(data["percentage"]))
 		if not user_permission.can():
 			from flask import make_response
 			return make_response("Insufficient rights", 403)
@@ -112,9 +109,21 @@ class LightSliderPlugin(octoprint.plugin.StartupPlugin,
 		if command == 'dim':
 			self.pwm_instance.ChangeDutyCycle(float(data["percentage"]))
 			self.current_pwm_value= data["percentage"]
-			self._logger.info("changed current_pwm_value: " + str(self.current_pwm_value))
+			self._logger.debug("changed current_pwm_value: " + str(self.current_pwm_value))
 
-__plugin_name__ = "Illumination Control"
+	def setup_pwm(self, pin):
+		GPIO.setmode(GPIO.BCM)
+		GPIO.setup(pin, GPIO.OUT)
+		self.pwm_instance = GPIO.PWM(pin, 800)
+		self.pwm_instance.start(self.defaultIntensity)
+		self.current_pwm_value=self.defaultIntensity
+		self._logger.debug("value of current_pwm_value: " + str(self.current_pwm_value))
+
+	def teardown_pwm(self):
+		self.pwm_instance.stop()
+		GPIO.cleanup()
+
+__plugin_name__ = "LightSlider"
 __plugin_version__ = "1.0.0"
 __plugin_description__ = "Dim your printbed light with the help of a mosfet and some pwm directly from a slider in the octoprint UI."
 
