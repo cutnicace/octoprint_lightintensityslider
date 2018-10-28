@@ -12,13 +12,23 @@
             </div>
         </div>
         <div class="control-group">
-            <label class="control-label">{{ _('Raspberry PI GPIO PWM PIN') }}</label>
+            <label class="control-label">{{ _('PWM Frequency') }}</label>
+            <div class="controls">
+                <div class="input-append">
+                    <input type="number" min="2" max="25000000" class="input-mini" data-bind="attr: { title: freqTitle }, value: settings.plugins.octoprint_lightslider.frequency">
+                    <span class="add-on">Hz</span>
+                </div>
+                <span class="help-block">{{ _('The PWM switching frequency used for generating the signal. You should increase the value if you encounter a visible flickering when dimming the lightsource. The RPi supports values from 2Hz up to 25Mhz.') }}</span>
+            </div>
+        </div>
+        <div class="control-group">
+            <label class="control-label">{{ _('RPi GPIO PWM PIN') }}</label>
             <div class="controls">
                 <div class="input-append">
                     <input type="number" min="2" max="27" class="input-mini" data-bind="attr: { title: rpiTitle }, value: settings.plugins.octoprint_lightslider.rpi_output">
                     <span class="add-on">Pin</span>
                 </div>
-                <span class="help-block">{{ _('General Purpose Input Output pin on the rPi you want to use to control the mosfet with.') }}</span>
+                <span class="help-block">{{ _('General Purpose Input Output pin on the Raspberry Pi you want to use to control your mosfet with. If you prefer high accuracy you should use one of the GPIO pins 12/13/18/19 as they have hardware PWM capability.') }}</span>
             </div>
         </div>
         <p><i>{{ _('NOTE: When choosing, keep in mind that you can only use Pins that are available on your PI hardware (older PI\'s only have a 26pin GPIO) and some have multiple functions...') }}</i></p>
@@ -40,7 +50,7 @@
                     <input type="number" min="0" max="100" class="input-mini" data-bind="attr: { title: maxTitle }, value: settings.plugins.octoprint_lightslider.maxIntensity">
                     <span class="add-on">%</span>
                 </div>
-                <span class="help-block">{{ _('Any value sent which is above this value will be decreased to meet this speed. Useful if your light source is too strong on full intensity.') }}</span>
+                <span class="help-block">{{ _('Any value sent which is above this value will be decreased to meet this light intensity. Useful if your light source is too strong on full intensity.') }}</span>
             </div>
         </div>
         <h3>{{ _('Notification Auto Hide Delay') }}</h3>

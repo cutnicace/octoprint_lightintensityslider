@@ -18,13 +18,15 @@ $(function () {
 		self.settings.maxIntensity = new ko.observable(100);		//and this are percents 0 - 100%
 		self.settings.notifyDelay = new ko.observable(4000); 	//time in milliseconds
 		self.settings.rpi_output = new ko.observable(25);	//decimal number of GPIO Pin
+		self.settings.frequency = new ko.observable(25);	//frequency in Hz
 
 		self.settings.commonTitle = ko.observable(gettext("\n\nThis allows for seamless adjusting of the print bed lighting.\n\nUtilizing PWM function thru GPIO pins and a mosfet."));
-		self.settings.defaultTitle = ko.observable(gettext("This is the value the slider will default to when the UI is loaded / refreshed."));
+		self.settings.defaultTitle = ko.observable(gettext("This is the value the slider will default to when the UI is loaded / refreshed. This represents the duty cycle of the PWM signal."));
 		self.settings.minTitle = ko.observable(gettext("Sets the lowest value you will be able to choose with the slider.") + self.settings.commonTitle());
 		self.settings.maxTitle = ko.observable(gettext("Set this <100% if your lighting is too bright on full.") + self.settings.commonTitle());
 		self.settings.noticeTitle = ko.observable(gettext("Notifications only apply when setting the intensity via the slider + button in the UI. Set to 0 (zero) to disable notifications."));
 		self.settings.rpiTitle = ko.observable(gettext("Set the GPIO Pin you want to use for the pwm signal."));
+		self.settings.freqTitle = ko.observable(gettext("Set the PWM switching frequency you want to use."));
 
 		self.showNotify = function (self, options) {
 			options.hide = true;
@@ -122,6 +124,7 @@ $(function () {
 				self.settings.maxIntensity(parseInt(self.settings.settings.plugins.octoprint_lightslider.maxIntensity()));
 				self.settings.notifyDelay(parseInt(self.settings.settings.plugins.octoprint_lightslider.notifyDelay()));
 				self.settings.rpi_output(parseInt(self.settings.settings.plugins.octoprint_lightslider.rpi_output()));
+				self.settings.frequency(parseInt(self.settings.settings.plugins.octoprint_lightslider.frequency()));
 			}
 			catch (error) {
 				console.log(error);
