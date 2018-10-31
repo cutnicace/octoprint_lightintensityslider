@@ -2,7 +2,7 @@
 # this plugin was adapted from the fanslider plugin by ntoff
 from __future__ import absolute_import
 
-import wiringpi as wp
+from subprocess import call
 import re
 import octoprint.plugin
 from octoprint.server import user_permission
@@ -16,18 +16,17 @@ class LightSliderPlugin(octoprint.plugin.StartupPlugin,
 
 	def on_after_startup(self):
 		self.get_settings_updates() #load saved values from the config.yaml into the variables
-		wp.wiringPiSetupGpio() #setup wiringpi with Broadcom pin numbering scheme
 		self.setup_pwm(self.pwmPin, self.pwmClock)
 
 	def on_shutdown(self):
 		#clean up after yourself
-		self.teardown_pwm()
+		self.teardown_pwm(self.pwmPin)
 
 	def get_settings_defaults(self):
 		return dict(
 			defaultIntensity=75, #duty cycle
 			pwmClock=240,
-			pwmPin=12,
+			pwmPin=18,
 			minIntensity=0,
 			maxIntensity=100,
 			notifyDelay=4000,
@@ -43,12 +42,10 @@ class LightSliderPlugin(octoprint.plugin.StartupPlugin,
 		if "pwmClock" in data.keys():
 			s.setInt(["pwmClock"], data["pwmClock"])
 			if s.getInt(["pwmClock"]) != clock: #compare if value changed
-				clock = s.getInt(["pwmClock"]) #overwrite with new value
 				pwm_changed = True #set modifier
 		if "pwmPin" in data.keys():
 			s.setInt(["pwmPin"], data["pwmPin"])
 			if s.getInt(["pwmPin"]) != pin: #compare if value changed
-				pin = s.getInt(["pwmPin"]) #overwrite with new value
 				pwm_changed = True #set modifier
 		if "minIntensity" in data.keys():
 			s.setInt(["minIntensity"], data["minIntensity"])
@@ -61,9 +58,9 @@ class LightSliderPlugin(octoprint.plugin.StartupPlugin,
 		self.on_settings_cleanup()
 		#modify pwm_instance if pin or clock changed
 		if (pwm_changed):
-			self.teardown_pwm()
-			self.setup_pwm(pin, clock)
-			self._logger.debug("pwm output modified: gpio_pin " + str(pin) + ", pwm_clock " + str(clock))
+			self.teardown_pwm(pin)
+			self.setup_pwm(s.getInt(["pwmPin"]), s.getInt(["pwmClock"]))
+			self._logger.debug("pwm output modified: gpio_pin " + str(s.getInt(["pwmPin"])) + ", pwm_clock " + str(s.getInt(["pwmClock"])))
 		s.save()
 
 	#function stolen...err borrowed :D from types.py @ 1663
@@ -120,25 +117,25 @@ class LightSliderPlugin(octoprint.plugin.StartupPlugin,
 			return make_response("Insufficient rights", 403)
 
 		if command == 'dim':
-			wp.pwmWrite(self.pwmPin, data["percentage"])
+			call("gpio -g pwm " + str(self.pwmPin) + " " + str(data["percentage"]), shell=True) #pin, duty cycle
 			self.current_pwm_value= data["percentage"]
 			self._logger.debug("changed current_duty_cycle: " + str(self.current_pwm_value))
 
 	def setup_pwm(self, pin, clock):
-		wp.pinMode (pin, wp.PWM_OUTPUT) #setup pin 26 as pwm output
-		wp.pwmSetMode(wp.PWM_MODE_MS) #set for mark:space mode
-		wp.pwmSetRange(100)  #set to 100 for 800MHz
-		wp.pwmSetClock(clock)  #set to 240 for 800MHz
-		wp.pwmWrite(pin, self.defaultIntensity) #pin, duty cycle
+		call("gpio -g mode "+ str(pin) + " pwm", shell=True) #using Broadcom numbering scheme setup pin 12 as pwm output
+		call("gpio pwm-ms", shell=True) #set for mark:space mode
+		call("gpio pwmr 100", shell=True) #set to 100 for 800MHz
+		call("gpio pwmc " + str(clock), shell=True) #set to 240 for 800MHz
+		call("gpio -g pwm " + str(pin) + " " + str(self.defaultIntensity), shell=True) #pin, duty cycle
 		self.current_pwm_value = self.defaultIntensity
 		self._logger.debug("current pwm_setup: duty_cycle " + str(self.current_pwm_value) + ", gpio_pin " + str(pin) +", pwm_clock " + str(clock))
 
-	def teardown_pwm(self):
-		wp.pinMode(self.pwmPin, wp.Input)
-		self._logger.debug("reset former pwm_pin " + str(self.pwmPin) + " pin_mode back to INPUT." )
+	def teardown_pwm(self, pin):
+		call("gpio -g mode " + str(pin) + " in", shell=True)
+		self._logger.debug("reset former pwm_pin " + str(pin) + " pin_mode back to INPUT." )
 
 __plugin_name__ = "LightSlider"
-__plugin_version__ = "1.0.0"
+__plugin_version__ = "1.1.0"
 __plugin_description__ = "Dim your printbed light with the help of a mosfet and some pwm directly from a slider in the octoprint UI."
 
 def __plugin_load__():

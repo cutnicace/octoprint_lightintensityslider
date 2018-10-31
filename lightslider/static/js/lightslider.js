@@ -13,14 +13,13 @@ $(function () {
 		self.loginState = parameters[2];
 
 		self.control.lightIntensity = new ko.observable(100);			//this,
-		self.settings.defaultIntensity = new ko.observable(80);	//this,
+		self.settings.defaultIntensity = new ko.observable(50);	//this,
 		self.settings.minIntensity = new ko.observable(0); 		//this,
 		self.settings.maxIntensity = new ko.observable(100);		//and this are percents 0 - 100%
 		self.settings.notifyDelay = new ko.observable(4000); 	//time in milliseconds
-		self.settings.pwmPin = new ko.observable(25);	//decimal number of GPIO Pin
-		self.settings.pwmClock = new ko.observable(25);	//frequency in Hz
+		self.settings.pwmPin = new ko.observable(18);	//decimal number of GPIO Pin
+		self.settings.pwmClock = new ko.observable(240);	//frequency in Hz
 
-		self.settings.commonTitle = ko.observable(gettext("\n\nThis allows for seamless adjusting of the print bed lighting.\n\nUtilizing PWM function thru GPIO pins and a mosfet."));
 		self.settings.defaultTitle = ko.observable(gettext("This is the value the slider will default to when the UI is loaded / refreshed. This represents the duty cycle of the PWM signal."));
 		self.settings.minTitle = ko.observable(gettext("Sets the lowest value you will be able to choose with the slider.") + self.settings.commonTitle());
 		self.settings.maxTitle = ko.observable(gettext("Set this <100% if your lighting is too bright on full.") + self.settings.commonTitle());
