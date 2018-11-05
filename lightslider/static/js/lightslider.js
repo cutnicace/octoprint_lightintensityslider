@@ -64,6 +64,7 @@ $(function () {
 
 		//send apirequest
 		self.control.sendPwmRequest = function(data){
+			console.log('entered_sendPWMRequest_function...');
 			$.ajax({
 			url: API_BASEURL + "plugin/lightslider",
 			type: "POST",
@@ -86,6 +87,30 @@ $(function () {
 		self.control.lightsOut = function() {
 			self.control.sendPwmRequest(0)
 		}
+
+//todo: add option to enable/disable function in settings menu
+		//detect if #control tab is focused
+		self.onTabChange = function (current, previous) {
+			if (current == "#control") {
+				//#control tab is focused, turn on light
+				self.control.lightsDim();
+			} else if (previous == "#control") {
+				//#control tab is not focused, turn off light
+				self.control.lightsOut();
+			}
+		};
+
+//todo: add option to enable/disable function in settings menu
+		//detect if octopi_page is focused
+		self.onBrowserTabVisibilityChange = function(status) {
+			if (status) {
+				//page is focused, turn on light
+				self.control.lightsDim();
+			} else {
+				//page is not focused, turn off light
+				self.control.lightsOut();
+			}
+		};
 
 		//ph34r
 		try {
